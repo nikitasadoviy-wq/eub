@@ -1,0 +1,27 @@
+{
+  "application": {
+    "name": "EUB",
+    "version": "0.1.0"
+  },
+  "protection": {
+    "block_browser": true,
+    "block_updater": true,
+    "block_installer": true,
+    "block_background_tasks": true,
+    "block_crash_handler": true
+  },
+  "allowlist": {
+    "webview2": true,
+    "webview2_runtime_installer": true
+  },
+  "monitoring": {
+    "enabled": true,
+    "interval_seconds": 2,
+    "dry_run": true
+  },
+  "logging": {
+    "enabled": true,
+    "level": "INFO",
+    "file": "logs/events.log"
+  }
+}
