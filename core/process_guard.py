@@ -4,6 +4,8 @@ from pathlib import Path
 import psutil
 
 from core.process_classifier import classify_process
+from core.path_verifier import verify_path
+from core.trust_analyzer import analyze_trust
 from core.pe_analyzer import analyze_pe
 from core.signature_verifier import verify_signature
 
@@ -12,6 +14,7 @@ TARGET_TYPES = {
     "BROWSER",
     "UPDATER",
     "INSTALLER",
+    "WEBVIEW2",
 }
 
 ANALYSIS_CACHE = {}
@@ -70,6 +73,7 @@ def analyze_file_cached(file_path):
     return pe_info, signature_info
 
 
+
 def inspect_processes():
     detected = []
 
@@ -95,9 +99,10 @@ def inspect_processes():
             if not path.is_file():
                 continue
 
+
             pe_info, signature_info = analyze_file_cached(path)
 
-            detected.append({
+            process_data = {
                 "pid": info.get("pid"),
                 "name": name,
                 "type": process_type,
@@ -105,13 +110,14 @@ def inspect_processes():
                 "command_line": info.get("cmdline") or [],
                 "pe": pe_info,
                 "signature": signature_info,
-            })
+            }
 
-        except (
-            psutil.NoSuchProcess,
-            psutil.AccessDenied,
-            psutil.ZombieProcess,
-        ):
-            continue
+            process_data["trust"] = analyze_trust(process_data)
 
-    return detected
+            process_data["path_check"] = verify_path(
+                process_type,
+                str(path),
+            )
+
+            detected.append(process_data)
+
